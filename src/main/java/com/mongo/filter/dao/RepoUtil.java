@@ -28,7 +28,7 @@ public class RepoUtil {
 
             logger.info("field {} == {}",field.getName(),tokens[i]);
             if (tokens[i].equals(field.getName())) {
-                if (genericTypeClassName != null){ // meaning its a list
+                if (genericTypeClassName != null){ // meaning it's a list
                     logger.info("Das ist list of type {} ",genericTypeClassName);
                     return isHierarchyPresent(tokens
                             , ++i

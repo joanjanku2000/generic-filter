@@ -16,7 +16,7 @@ import static com.mongo.filter.dao.RepoUtil.extractCriteria;
 
 
 @Repository
-public class FilterRepoMongoImpl<DOCUMENT> implements FilterRepo {
+public class FilterRepoMongoImpl implements FilterRepo {
 
     private final MongoTemplate mongoTemplate;
 
