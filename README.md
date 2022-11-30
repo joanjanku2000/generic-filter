@@ -33,6 +33,7 @@ is an enum , which has 3 values: EQUALS, GREATER_THAN , LESS_THAN.
 To use the Filter inject the FilterRepo interface in your service/controller using the desired method of dependency injection
 in Spring and use it as you wish.
 
+(c) Joan Janku 2022
 
 
 
