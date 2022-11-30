@@ -25,7 +25,8 @@ public class FilterRepoMongoImpl implements FilterRepo {
     }
 
     @Override
-    public <DOCUMENT> List<DOCUMENT> filter(FilterWrap filterWrap, Class<DOCUMENT> collectionClass) {
+    public <DOCUMENT> List<DOCUMENT> filter(FilterWrap filterWrap,
+                                            Class<DOCUMENT> collectionClass) {
         Collection<Filter> filters = filterWrap.getFilters();
 
         List<Field> declaredClassFields = Arrays
