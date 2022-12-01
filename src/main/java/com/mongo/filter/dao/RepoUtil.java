@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
@@ -66,6 +69,33 @@ public class RepoUtil {
 
         }
         return criteriaDefinition;
+    }
+
+    public static Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root root){
+        Predicate predicate = null;
+        Integer intValue = null;
+
+        try {
+            intValue = Integer.parseInt(filter.getValue());
+        } catch (NumberFormatException numberFormatException){
+            logger.info("It isnt int value");
+        }
+
+        switch (filter.getOperator()){
+            case EQUALS:
+                predicate = cb.equal(root.get(filter.getField()),filter.getValue());
+                break;
+            case LESS_THAN:
+                predicate = cb.lt(root.get(filter.getField()),intValue);
+                break;
+            case GREATER_THAN:
+                predicate = cb.gt(root.get(filter.getField()),intValue);
+                break;
+            default:
+                throw new RuntimeException("Wrong operator");
+
+        }
+        return predicate;
     }
 
     public static Collection<Filter> extractCorrectFilters(Collection<Filter> filters, List<Field> declaredFields) {
