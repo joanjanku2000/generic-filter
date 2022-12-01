@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.lang.reflect.Field;
@@ -71,7 +72,7 @@ public class RepoUtil {
         return criteriaDefinition;
     }
 
-    public static Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root root){
+    public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root) {
         Predicate predicate = null;
         Integer intValue = null;
 
@@ -81,21 +82,60 @@ public class RepoUtil {
             logger.info("It isn't int value");
         }
 
-        switch (filter.getOperator()){
+        Join<Object,Object> joinObject = null;
+        List<String> nestedFields = extractNestedFields(filter);
+
+        if (filterIsNested(filter)){
+            // Add Neccessary Joins
+            Join<Object,Object> previous = null;
+            int iteration = 1;
+
+            for (String field : nestedFields.subList(1, nestedFields.size() - 1)) {
+
+                if (iteration == 1)
+                    joinObject = root.join(field);
+                else
+                    joinObject = previous.join(field);
+
+                previous = joinObject;
+                iteration++;
+            }
+
+        }
+        switch (filter.getOperator()) {
             case EQUALS:
-                predicate = cb.equal(root.get(filter.getField()),filter.getValue());
+                predicate = joinObject != null ?
+                                cb.equal(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1]),filter.getValue())
+                                    :
+                                cb.equal(root.get(filter.getField()),filter.getValue());
                 break;
             case LESS_THAN:
-                predicate = cb.lt(root.get(filter.getField()),intValue);
+                predicate =
+                        joinObject != null ?
+                                cb.lt(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1]),intValue)
+                                    :
+                                cb.lt(root.get(filter.getField()),intValue);
                 break;
             case GREATER_THAN:
-                predicate = cb.gt(root.get(filter.getField()),intValue);
+                predicate =
+                        joinObject != null ?
+                                cb.gt(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1]),intValue)
+                                :
+                                cb.gt(root.get(filter.getField()),intValue);
                 break;
             default:
                 throw new RuntimeException("Wrong operator");
 
         }
         return predicate;
+    }
+
+    private static List<String> extractNestedFields(Filter filter){
+        return Arrays.asList(filter.getField().split("."));
+    }
+
+    private static boolean filterIsNested(Filter filter) {
+        return filter.getField().contains(".");
     }
 
     public static Collection<Filter> extractCorrectFilters(Collection<Filter> filters, List<Field> declaredFields) {
