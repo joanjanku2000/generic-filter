@@ -55,6 +55,7 @@ public class RepoUtil {
 
     public static CriteriaDefinition extractCriteria(Filter filter){
         CriteriaDefinition criteriaDefinition ;
+
         switch (filter.getOperator()){
             case EQUALS:
                 criteriaDefinition = Criteria.where(filter.getField()).is(filter.getValue());
@@ -69,6 +70,7 @@ public class RepoUtil {
                 throw new RuntimeException("Wrong operator");
 
         }
+
         return criteriaDefinition;
     }
 
@@ -85,23 +87,13 @@ public class RepoUtil {
         Join<Object,Object> joinObject = null;
         List<String> nestedFields = extractNestedFields(filter);
 
-        if (filterIsNested(filter)){
+        if (filterIsNested(filter)) {
             // Add Neccessary Joins
             Join<Object,Object> previous = null;
-            int iteration = 1;
-
-            for (String field : nestedFields.subList(1, nestedFields.size() - 1)) {
-
-                if (iteration == 1)
-                    joinObject = root.join(field);
-                else
-                    joinObject = previous.join(field);
-
-                previous = joinObject;
-                iteration++;
-            }
+            joinObject = getJoinObject(root, joinObject, nestedFields, previous);
 
         }
+
         switch (filter.getOperator()) {
             case EQUALS:
                 predicate = joinObject != null ?
@@ -131,6 +123,22 @@ public class RepoUtil {
 
         }
         return predicate;
+    }
+
+    private static <T> Join<Object, Object> getJoinObject(Root<T> root, Join<Object, Object> joinObject, List<String> nestedFields, Join<Object, Object> previous) {
+        int iteration = 1;
+
+        for (String field : nestedFields.subList(1, nestedFields.size() - 1)) {
+
+            if (iteration == 1)
+                joinObject = root.join(field);
+            else
+                joinObject = previous.join(field);
+
+            previous = joinObject;
+            iteration++;
+        }
+        return joinObject;
     }
 
     private static List<String> extractNestedFields(Filter filter){
