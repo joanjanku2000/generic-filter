@@ -6,6 +6,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
@@ -13,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class RepoUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(RepoUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(RepoUtil.class);
 
     public static boolean isHierarchyPresent(String[] tokens, int i, List<Field> fields) throws ClassNotFoundException {
         if (i >= tokens.length) {
@@ -51,6 +55,7 @@ public class RepoUtil {
 
     public static CriteriaDefinition extractCriteria(Filter filter){
         CriteriaDefinition criteriaDefinition ;
+
         switch (filter.getOperator()){
             case EQUALS:
                 criteriaDefinition = Criteria.where(filter.getField()).is(filter.getValue());
@@ -65,17 +70,101 @@ public class RepoUtil {
                 throw new RuntimeException("Wrong operator");
 
         }
+
         return criteriaDefinition;
     }
 
-    public static Collection<Filter> extractCorrectFilters(Collection<Filter> filters, List<Field> declaredFields) {
+    public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root) {
+        logger.info("Extracting criteria ... ");
+        Predicate predicate;
+        Integer intValue = null;
 
+        try {
+            intValue = Integer.parseInt(filter.getValue());
+        } catch (NumberFormatException numberFormatException){
+            logger.info("Value isn't int value");
+        }
+
+        Join<Object,Object> joinObject = null;
+        List<String> nestedFields = extractNestedFields(filter);
+        logger.info("{} nested fields",nestedFields.size());
+
+        if (filterIsNested(filter)) {
+            // Add Neccessary Joins
+            joinObject = getJoinObject(root, joinObject, nestedFields);
+
+        }
+
+        switch (filter.getOperator()) {
+            case EQUALS:
+                predicate = joinObject != null ?
+                                cb.equal(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                                        ,filter.getValue())
+                                    :
+                                cb.equal(root.get(filter.getField()),filter.getValue());
+                break;
+            case LESS_THAN:
+                predicate =
+                        joinObject != null ?
+                                cb.lt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                                        ,intValue)
+                                    :
+                                cb.lt(root.get(filter.getField()),intValue);
+                break;
+            case GREATER_THAN:
+                predicate =
+                        joinObject != null ?
+                                cb.gt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                                        ,intValue)
+                                :
+                                cb.gt(root.get(filter.getField()),intValue);
+                break;
+            default:
+                throw new RuntimeException("Wrong operator");
+
+        }
+        return predicate;
+    }
+
+    private static <T> Join<Object, Object> getJoinObject(Root<T> root, Join<Object, Object> joinObject, List<String> nestedFields ) {
+        logger.info("Adding necessary join predicates ... ");
+        int iteration = 1;
+        Join<Object, Object> previous = null;
+        for (String field : nestedFields.subList(0,nestedFields.size()-1)) {
+            logger.info("Field {}",field);
+            logger.info("Previous Join {}",previous != null ? previous.getJavaType().getName() : null);
+
+            if (iteration == 1)
+                joinObject = root.join(field);
+            else
+                joinObject = previous.join(field);
+
+            previous = joinObject;
+            iteration++;
+        }
+        logger.info("Returning Last Join as {}",joinObject.getJavaType().getName());
+        return joinObject;
+    }
+
+    private static List<String> extractNestedFields(Filter filter){
+        return Arrays.asList(filter.getField().split("[.]"));
+    }
+
+    private static boolean filterIsNested(Filter filter) {
+        return filter.getField().contains(".");
+    }
+
+    public static Collection<Filter> extractCorrectFilters(Collection<Filter> filters, List<Field> declaredFields) {
+        logger.info("Filters size {} ",filters.size());
         Map<String, Filter> filterMap = new HashMap<>();
         filters.forEach(filter -> filterMap.put(filter.getField(), filter));
 
         if (filters.isEmpty() && declaredFields.isEmpty()) {
             return filterMap.values();
         }
+
+        filters.stream()
+                .forEach(filter ->  logger.info("Filter {}",filter));
 
         filters.stream()
                 .map(Filter::getField)
