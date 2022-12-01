@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class RepoUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(RepoUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(RepoUtil.class);
 
     public static boolean isHierarchyPresent(String[] tokens, int i, List<Field> fields) throws ClassNotFoundException {
         if (i >= tokens.length) {
