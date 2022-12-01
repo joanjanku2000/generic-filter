@@ -75,17 +75,19 @@ public class RepoUtil {
     }
 
     public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root) {
+        logger.info("Extracting criteria ... ");
         Predicate predicate;
         Integer intValue = null;
 
         try {
             intValue = Integer.parseInt(filter.getValue());
         } catch (NumberFormatException numberFormatException){
-            logger.info("It isn't int value");
+            logger.info("Value isn't int value");
         }
 
         Join<Object,Object> joinObject = null;
         List<String> nestedFields = extractNestedFields(filter);
+        logger.info("{} nested fields",nestedFields.size());
 
         if (filterIsNested(filter)) {
             // Add Neccessary Joins
@@ -125,9 +127,12 @@ public class RepoUtil {
     }
 
     private static <T> Join<Object, Object> getJoinObject(Root<T> root, Join<Object, Object> joinObject, List<String> nestedFields ) {
+        logger.info("Adding necessary join predicates ... ");
         int iteration = 1;
         Join<Object, Object> previous = null;
         for (String field : nestedFields.subList(1, nestedFields.size() - 1)) {
+            logger.info("Field {}",field);
+            logger.info("Previous Join {}",previous != null ? previous.getJavaType().getName() : null);
 
             if (iteration == 1)
                 joinObject = root.join(field);
@@ -137,6 +142,7 @@ public class RepoUtil {
             previous = joinObject;
             iteration++;
         }
+        logger.info("Returning Last Join as {}",joinObject.getJavaType().getName());
         return joinObject;
     }
 
