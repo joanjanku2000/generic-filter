@@ -98,7 +98,7 @@ public class RepoUtil {
         switch (filter.getOperator()) {
             case EQUALS:
                 predicate = joinObject != null ?
-                                cb.equal(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1])
+                                cb.equal(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
                                         ,filter.getValue())
                                     :
                                 cb.equal(root.get(filter.getField()),filter.getValue());
@@ -106,7 +106,7 @@ public class RepoUtil {
             case LESS_THAN:
                 predicate =
                         joinObject != null ?
-                                cb.lt(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1])
+                                cb.lt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
                                         ,intValue)
                                     :
                                 cb.lt(root.get(filter.getField()),intValue);
@@ -114,7 +114,7 @@ public class RepoUtil {
             case GREATER_THAN:
                 predicate =
                         joinObject != null ?
-                                cb.gt(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1])
+                                cb.gt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
                                         ,intValue)
                                 :
                                 cb.gt(root.get(filter.getField()),intValue);
@@ -130,7 +130,7 @@ public class RepoUtil {
         logger.info("Adding necessary join predicates ... ");
         int iteration = 1;
         Join<Object, Object> previous = null;
-        for (String field : nestedFields.subList(1, nestedFields.size() - 1)) {
+        for (String field : nestedFields.subList(0,nestedFields.size()-1)) {
             logger.info("Field {}",field);
             logger.info("Previous Join {}",previous != null ? previous.getJavaType().getName() : null);
 
@@ -147,7 +147,7 @@ public class RepoUtil {
     }
 
     private static List<String> extractNestedFields(Filter filter){
-        return Arrays.asList(filter.getField().split("."));
+        return Arrays.asList(filter.getField().split("[.]"));
     }
 
     private static boolean filterIsNested(Filter filter) {
@@ -155,13 +155,16 @@ public class RepoUtil {
     }
 
     public static Collection<Filter> extractCorrectFilters(Collection<Filter> filters, List<Field> declaredFields) {
-
+        logger.info("Filters size {} ",filters.size());
         Map<String, Filter> filterMap = new HashMap<>();
         filters.forEach(filter -> filterMap.put(filter.getField(), filter));
 
         if (filters.isEmpty() && declaredFields.isEmpty()) {
             return filterMap.values();
         }
+
+        filters.stream()
+                .forEach(filter ->  logger.info("Filter {}",filter));
 
         filters.stream()
                 .map(Filter::getField)
