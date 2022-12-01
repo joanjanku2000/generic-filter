@@ -75,7 +75,7 @@ public class RepoUtil {
     }
 
     public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root) {
-        Predicate predicate = null;
+        Predicate predicate;
         Integer intValue = null;
 
         try {
@@ -89,8 +89,7 @@ public class RepoUtil {
 
         if (filterIsNested(filter)) {
             // Add Neccessary Joins
-            Join<Object,Object> previous = null;
-            joinObject = getJoinObject(root, joinObject, nestedFields, previous);
+            joinObject = getJoinObject(root, joinObject, nestedFields);
 
         }
 
@@ -125,9 +124,9 @@ public class RepoUtil {
         return predicate;
     }
 
-    private static <T> Join<Object, Object> getJoinObject(Root<T> root, Join<Object, Object> joinObject, List<String> nestedFields, Join<Object, Object> previous) {
+    private static <T> Join<Object, Object> getJoinObject(Root<T> root, Join<Object, Object> joinObject, List<String> nestedFields ) {
         int iteration = 1;
-
+        Join<Object, Object> previous = null;
         for (String field : nestedFields.subList(1, nestedFields.size() - 1)) {
 
             if (iteration == 1)
