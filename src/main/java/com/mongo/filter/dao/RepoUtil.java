@@ -105,21 +105,24 @@ public class RepoUtil {
         switch (filter.getOperator()) {
             case EQUALS:
                 predicate = joinObject != null ?
-                                cb.equal(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1]),filter.getValue())
+                                cb.equal(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1])
+                                        ,filter.getValue())
                                     :
                                 cb.equal(root.get(filter.getField()),filter.getValue());
                 break;
             case LESS_THAN:
                 predicate =
                         joinObject != null ?
-                                cb.lt(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1]),intValue)
+                                cb.lt(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1])
+                                        ,intValue)
                                     :
                                 cb.lt(root.get(filter.getField()),intValue);
                 break;
             case GREATER_THAN:
                 predicate =
                         joinObject != null ?
-                                cb.gt(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1]),intValue)
+                                cb.gt(joinObject.get(filter.getField().split(".")[nestedFields.size() - 1])
+                                        ,intValue)
                                 :
                                 cb.gt(root.get(filter.getField()),intValue);
                 break;
