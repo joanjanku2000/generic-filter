@@ -16,7 +16,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class RepoUtil {
-
+    private RepoUtil(){
+        // Empty Constructor to avoid instantiation
+    }
     private static final Logger logger = LoggerFactory.getLogger(RepoUtil.class);
 
     public static boolean isHierarchyPresent(String[] tokens, int i, List<Field> fields) throws ClassNotFoundException {
@@ -98,17 +100,17 @@ public class RepoUtil {
         switch (filter.getOperator()) {
             case EQUALS:
                 predicate = joinObject != null ?
-                                cb.equal(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
-                                        ,filter.getValue())
-                                    :
-                                cb.equal(root.get(filter.getField()),filter.getValue());
+                        cb.equal(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                                ,filter.getValue())
+                        :
+                        cb.equal(root.get(filter.getField()),filter.getValue());
                 break;
             case LESS_THAN:
                 predicate =
                         joinObject != null ?
                                 cb.lt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
                                         ,intValue)
-                                    :
+                                :
                                 cb.lt(root.get(filter.getField()),intValue);
                 break;
             case GREATER_THAN:
