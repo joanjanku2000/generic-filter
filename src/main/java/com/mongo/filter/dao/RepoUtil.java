@@ -28,7 +28,7 @@ public class RepoUtil {
         for (Field field : fields) {
             String genericTypeClassName = null;
 
-            if (field.getGenericType().getTypeName().contains("java.util.List")){
+            if (field.getGenericType().getTypeName().contains("java.util.List")) {
                 genericTypeClassName = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0].getTypeName();
             }
 
@@ -58,7 +58,7 @@ public class RepoUtil {
     public static CriteriaDefinition extractCriteria(Filter filter){
         CriteriaDefinition criteriaDefinition ;
 
-        switch (filter.getOperator()){
+        switch (filter.getOperator()) {
             case EQUALS:
                 criteriaDefinition = Criteria.where(filter.getField()).is(filter.getValue());
                 break;
@@ -174,7 +174,7 @@ public class RepoUtil {
                         filter -> {
                             if (filter.contains(".")) {
 
-                                String[] tokens = filter.split(".");
+                                String[] tokens = filter.split("[.]");
                                 try {
                                     if (!isHierarchyPresent(tokens, 0, declaredFields)) {
                                         filterMap.remove(filter);
