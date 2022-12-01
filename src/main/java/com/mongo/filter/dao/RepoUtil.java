@@ -78,7 +78,7 @@ public class RepoUtil {
         try {
             intValue = Integer.parseInt(filter.getValue());
         } catch (NumberFormatException numberFormatException){
-            logger.info("It isnt int value");
+            logger.info("It isn't int value");
         }
 
         switch (filter.getOperator()){
