@@ -16,7 +16,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class RepoUtil {
-
+    private RepoUtil(){
+        // Empty Constructor to avoid instantiation
+    }
     private static final Logger logger = LoggerFactory.getLogger(RepoUtil.class);
 
     public static boolean isHierarchyPresent(String[] tokens, int i, List<Field> fields) throws ClassNotFoundException {
@@ -26,7 +28,7 @@ public class RepoUtil {
         for (Field field : fields) {
             String genericTypeClassName = null;
 
-            if (field.getGenericType().getTypeName().contains("java.util.List")){
+            if (field.getGenericType().getTypeName().contains("java.util.List")) {
                 genericTypeClassName = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0].getTypeName();
             }
 
@@ -56,7 +58,7 @@ public class RepoUtil {
     public static CriteriaDefinition extractCriteria(Filter filter){
         CriteriaDefinition criteriaDefinition ;
 
-        switch (filter.getOperator()){
+        switch (filter.getOperator()) {
             case EQUALS:
                 criteriaDefinition = Criteria.where(filter.getField()).is(filter.getValue());
                 break;
@@ -98,17 +100,17 @@ public class RepoUtil {
         switch (filter.getOperator()) {
             case EQUALS:
                 predicate = joinObject != null ?
-                                cb.equal(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
-                                        ,filter.getValue())
-                                    :
-                                cb.equal(root.get(filter.getField()),filter.getValue());
+                        cb.equal(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                                ,filter.getValue())
+                        :
+                        cb.equal(root.get(filter.getField()),filter.getValue());
                 break;
             case LESS_THAN:
                 predicate =
                         joinObject != null ?
                                 cb.lt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
                                         ,intValue)
-                                    :
+                                :
                                 cb.lt(root.get(filter.getField()),intValue);
                 break;
             case GREATER_THAN:
@@ -172,7 +174,7 @@ public class RepoUtil {
                         filter -> {
                             if (filter.contains(".")) {
 
-                                String[] tokens = filter.split(".");
+                                String[] tokens = filter.split("[.]");
                                 try {
                                     if (!isHierarchyPresent(tokens, 0, declaredFields)) {
                                         filterMap.remove(filter);
