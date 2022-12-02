@@ -3,4 +3,4 @@ TODO
 -> Dates Comparison -> DONE
 -> Error Cases -> STILL TODO
 -> Add more validations
--> Infinite Loops (?) --> Stil to Verify
+-> Infinite Loops (?) --> Still to Verify
