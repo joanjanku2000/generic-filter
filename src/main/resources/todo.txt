@@ -1,6 +1,7 @@
 TODO
--> Find a way to dynamically deserialize Filter
--> Dates Comparison
--> Error Cases
--> Infinite Loops (?)
--> Mongo field names
+-> Find a way to dynamically deserialize Filter -> NO NECCESSARY ANYMORE
+-> Dates Comparison -> DONE
+-> Error Cases -> STILL TODO
+-> Add more validations
+-> Infinite Loops (?) --> Still to Verify
+
