@@ -1,13 +1,27 @@
 package com.mongo.filter.dto.filter;
 
 
+import jdk.vm.ci.meta.Value;
+
 public class Filter {
     private String field;
     private String value;
     private InternalOperator operator;
 
+    private ValueType type;
+
+
+
     public Filter() {
        // EMPTY
+    }
+
+    public ValueType getType() {
+        return type;
+    }
+
+    public void setType(ValueType type) {
+        this.type = type;
     }
 
     public String getField() {

@@ -1,19 +1,21 @@
 package com.mongo.filter.dao;
 
 import com.mongo.filter.dto.filter.Filter;
+import com.mongo.filter.dto.filter.ValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.mongo.filter.dto.filter.InternalOperator.*;
 
 public class RepoUtil {
     private RepoUtil(){
@@ -55,7 +57,7 @@ public class RepoUtil {
         return false;
     }
 
-    public static CriteriaDefinition extractCriteria(Filter filter){
+    public static CriteriaDefinition extractCriteria(Filter filter) {
         CriteriaDefinition criteriaDefinition ;
 
         switch (filter.getOperator()) {
@@ -76,13 +78,13 @@ public class RepoUtil {
         return criteriaDefinition;
     }
 
-    public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root) {
+    public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root, Class clazz) {
         logger.info("Extracting criteria ... ");
-        Predicate predicate;
+
         Integer intValue = null;
 
         try {
-            intValue = Integer.parseInt(filter.getValue());
+            intValue = Integer.parseInt((String) filter.getValue());
         } catch (NumberFormatException numberFormatException){
             logger.info("Value isn't int value");
         }
@@ -93,40 +95,121 @@ public class RepoUtil {
 
         if (filterIsNested(filter)) {
             // Add Neccessary Joins
+            logger.info("Join java type ");
             joinObject = getJoinObject(root, joinObject, nestedFields);
-
+            logger.info("Join java type {} " ,joinObject.getJavaType() );
+            clazz = joinObject.getJavaType();
         }
 
-        switch (filter.getOperator()) {
-            case EQUALS:
-                predicate = joinObject != null ?
-                        cb.equal(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
-                                ,filter.getValue())
-                        :
-                        cb.equal(root.get(filter.getField()),filter.getValue());
-                break;
-            case LESS_THAN:
-                predicate =
-                        joinObject != null ?
-                                cb.lt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
-                                        ,intValue)
-                                :
-                                cb.lt(root.get(filter.getField()),intValue);
-                break;
-            case GREATER_THAN:
-                predicate =
-                        joinObject != null ?
-                                cb.gt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
-                                        ,intValue)
-                                :
-                                cb.gt(root.get(filter.getField()),intValue);
-                break;
-            default:
-                throw new RuntimeException("Wrong operator");
+        Path<Double> doublePath;
+        Path<String> stringPath;
+        Path<LocalDate> datePath;
+        Path<LocalDateTime> ldateTimePath;
 
-        }
+        Double doubleValue;
+        String stringValue;
+        LocalDate lDateValue;
+        LocalDateTime lDateTimeValue;
+
+        Predicate predicate = null;
+
+       switch (filter.getType()){
+           case NUMERIC:
+               doublePath= joinObject != null ?
+                       joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                       :
+                       root.get(filter.getField());
+               doubleValue = Double.parseDouble(filter.getValue());
+               switch (filter.getOperator()) {
+                   case LESS_THAN:
+                       predicate = cb.lessThan(doublePath,doubleValue);
+                       break;
+                   case GREATER_THAN:
+                       predicate = cb.greaterThan(doublePath,doubleValue);
+                       break;
+
+                   case EQUALS:
+                   default:
+                       predicate = cb.equal(doublePath,doubleValue);
+
+               }
+               break;
+           case STRING:
+               stringPath = joinObject != null ?
+                       joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                       :
+                       root.get(filter.getField());
+               stringValue = filter.getValue();
+
+               switch (filter.getOperator()) {
+
+                   case LESS_THAN:
+                       predicate = cb.lessThan(stringPath,stringValue);
+                       break;
+
+                   case GREATER_THAN:
+                       predicate = cb.greaterThan(stringPath,stringValue);
+                       break;
+
+                   case EQUALS:
+                   default:
+                       predicate = cb.equal(stringPath,stringValue);
+
+               }
+
+               break;
+           case  LOCAL_DATE:
+               datePath =  joinObject != null ?
+                       joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                       :
+                       root.get(filter.getField());
+               lDateValue = LocalDate.parse(filter.getValue());
+
+               switch (filter.getOperator()) {
+                   case LESS_THAN:
+                       predicate = cb.lessThan(datePath,lDateValue);
+                       break;
+                   case GREATER_THAN:
+                       predicate = cb.greaterThan(datePath,lDateValue);
+                       break;
+
+                   case EQUALS:
+                   default:
+                       predicate = cb.equal(datePath,lDateValue);
+                       break;
+
+               }
+
+               break;
+           case LOCAL_DATE_TIME:
+               ldateTimePath =  joinObject != null ?
+                       joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                       :
+                       root.get(filter.getField());
+               lDateTimeValue = LocalDateTime.parse(filter.getValue());
+
+               switch (filter.getOperator()) {
+                   case LESS_THAN:
+                       predicate = cb.lessThan(ldateTimePath,lDateTimeValue);
+                       break;
+                   case GREATER_THAN:
+                       predicate = cb.greaterThan(ldateTimePath,lDateTimeValue);
+                       break;
+
+                   case EQUALS:
+                   default:
+                       predicate = cb.equal(ldateTimePath,lDateTimeValue);
+               }
+
+               break;
+
+       }
+
+
         return predicate;
     }
+
+
 
     private static <T> Join<Object, Object> getJoinObject(Root<T> root, Join<Object, Object> joinObject, List<String> nestedFields ) {
         logger.info("Adding necessary join predicates ... ");
@@ -153,6 +236,7 @@ public class RepoUtil {
     }
 
     private static boolean filterIsNested(Filter filter) {
+        logger.info("Filter contains . {} ",filter.getField().contains("."));
         return filter.getField().contains(".");
     }
 
@@ -164,9 +248,6 @@ public class RepoUtil {
         if (filters.isEmpty() && declaredFields.isEmpty()) {
             return filterMap.values();
         }
-
-        filters.stream()
-                .forEach(filter ->  logger.info("Filter {}",filter));
 
         filters.stream()
                 .map(Filter::getField)
