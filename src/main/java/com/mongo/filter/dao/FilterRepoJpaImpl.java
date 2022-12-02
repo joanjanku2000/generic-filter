@@ -39,17 +39,20 @@ public class FilterRepoJpaImpl implements FilterRepo {
         CriteriaQuery<DOCUMENT> criteriaQuery = criteriaBuilder.createQuery(collectionClass);
         Root<DOCUMENT> root = criteriaQuery.from(collectionClass);
 
-        List<Predicate> predicates = predicates(filters, criteriaBuilder, root);
+        List<Predicate> predicates = predicates(filters, criteriaBuilder, root,collectionClass);
 
         criteriaQuery.select(root).where(predicates.toArray(new Predicate[0]));
 
         return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
-    private <DOCUMENT> List<Predicate> predicates(Collection<Filter> filters, CriteriaBuilder criteriaBuilder, Root<DOCUMENT> root) {
+    private <DOCUMENT> List<Predicate> predicates(Collection<Filter> filters
+                                                , CriteriaBuilder criteriaBuilder
+                                                , Root<DOCUMENT> root
+                                                ,Class<DOCUMENT> clazz) {
         return filters
                 .stream()
-                .map(filter -> extractCriteria(filter, criteriaBuilder, root))
+                .map(filter -> extractCriteria(filter, criteriaBuilder, root,clazz))
                 .collect(Collectors.toList());
     }
 }

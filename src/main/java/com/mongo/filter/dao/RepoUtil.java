@@ -6,12 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,7 +54,7 @@ public class RepoUtil {
         return false;
     }
 
-    public static CriteriaDefinition extractCriteria(Filter filter){
+    public static CriteriaDefinition extractCriteria(Filter filter) {
         CriteriaDefinition criteriaDefinition ;
 
         switch (filter.getOperator()) {
@@ -76,13 +75,13 @@ public class RepoUtil {
         return criteriaDefinition;
     }
 
-    public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root) {
+    public static <T,S extends Comparable> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root, Class clazz) {
         logger.info("Extracting criteria ... ");
         Predicate predicate;
         Integer intValue = null;
 
         try {
-            intValue = Integer.parseInt(filter.getValue());
+            intValue = Integer.parseInt((String) filter.getValue());
         } catch (NumberFormatException numberFormatException){
             logger.info("Value isn't int value");
         }
@@ -93,39 +92,53 @@ public class RepoUtil {
 
         if (filterIsNested(filter)) {
             // Add Neccessary Joins
+            logger.info("Join java type ");
             joinObject = getJoinObject(root, joinObject, nestedFields);
-
+            logger.info("Join java type {} " ,joinObject.getJavaType() );
+            clazz = joinObject.getJavaType();
         }
+
+        Class fieldToQueryType ;
+
+        boolean fieldToQueryIsOfTypeDate = false;
+
+        try {
+            fieldToQueryType = clazz.getField(filter.getField()).getType();
+
+            if (fieldIsDate(fieldToQueryType)) {
+                fieldToQueryIsOfTypeDate = true;
+            }
+
+        } catch (NoSuchFieldException ex) {
+            fieldToQueryType = null;
+            logger.info("No such field , which isn't supposed to happen at this point");
+        }
+
+        Path<S> path = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                :
+                root.get(filter.getField());
 
         switch (filter.getOperator()) {
             case EQUALS:
-                predicate = joinObject != null ?
-                        cb.equal(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
-                                ,filter.getValue())
-                        :
-                        cb.equal(root.get(filter.getField()),filter.getValue());
+                predicate = cb.equal(path,filter.getValue());
                 break;
             case LESS_THAN:
-                predicate =
-                        joinObject != null ?
-                                cb.lt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
-                                        ,intValue)
-                                :
-                                cb.lt(root.get(filter.getField()),intValue);
+                predicate = cb.lessThan(path,filter.getValue());
                 break;
             case GREATER_THAN:
-                predicate =
-                        joinObject != null ?
-                                cb.gt(joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
-                                        ,intValue)
-                                :
-                                cb.gt(root.get(filter.getField()),intValue);
+                predicate = cb.greaterThan(path,filter.getValue());
                 break;
             default:
                 throw new RuntimeException("Wrong operator");
 
         }
         return predicate;
+    }
+
+    private static boolean fieldIsDate(Class fieldToQueryType) {
+        return fieldToQueryType.equals(LocalDate.class)
+                || fieldToQueryType.equals(LocalDateTime.class)
+                || fieldToQueryType.equals(Date.class);
     }
 
     private static <T> Join<Object, Object> getJoinObject(Root<T> root, Join<Object, Object> joinObject, List<String> nestedFields ) {
@@ -153,6 +166,7 @@ public class RepoUtil {
     }
 
     private static boolean filterIsNested(Filter filter) {
+        logger.info("Filter contains . {} ",filter.getField().contains("."));
         return filter.getField().contains(".");
     }
 
@@ -164,9 +178,6 @@ public class RepoUtil {
         if (filters.isEmpty() && declaredFields.isEmpty()) {
             return filterMap.values();
         }
-
-        filters.stream()
-                .forEach(filter ->  logger.info("Filter {}",filter));
 
         filters.stream()
                 .map(Filter::getField)

@@ -1,9 +1,9 @@
 package com.mongo.filter.dto.filter;
 
 
-public class Filter {
+public class Filter<T extends Comparable> {
     private String field;
-    private String value;
+    private T value;
     private InternalOperator operator;
 
     public Filter() {
@@ -18,11 +18,11 @@ public class Filter {
         this.field = field;
     }
 
-    public String getValue() {
+    public T getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(T value) {
         this.value = value;
     }
 
