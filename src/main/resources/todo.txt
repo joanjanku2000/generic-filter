@@ -1,5 +1,6 @@
 TODO
--> Find a way to dynamically deserialize Filter
--> Dates Comparison
--> Error Cases
--> Infinite Loops (?)
+-> Find a way to dynamically deserialize Filter -> NO NECCESSARY ANYMORE
+-> Dates Comparison -> DONE
+-> Error Cases -> STILL TODO
+-> Add more validations
+-> Infinite Loops (?) --> Stil to Verify
