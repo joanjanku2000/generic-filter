@@ -1,6 +1,7 @@
 package com.mongo.filter.dao;
 
 import com.mongo.filter.dto.filter.Filter;
+import com.mongo.filter.dto.filter.ValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,6 +14,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.mongo.filter.dto.filter.InternalOperator.*;
 
 public class RepoUtil {
     private RepoUtil(){
@@ -75,9 +78,9 @@ public class RepoUtil {
         return criteriaDefinition;
     }
 
-    public static <T,S extends Comparable> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root, Class clazz) {
+    public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root, Class clazz) {
         logger.info("Extracting criteria ... ");
-        Predicate predicate;
+
         Integer intValue = null;
 
         try {
@@ -98,48 +101,115 @@ public class RepoUtil {
             clazz = joinObject.getJavaType();
         }
 
-        Class fieldToQueryType ;
+        Path<Double> doublePath;
+        Path<String> stringPath;
+        Path<LocalDate> datePath;
+        Path<LocalDateTime> ldateTimePath;
 
-        boolean fieldToQueryIsOfTypeDate = false;
+        Double doubleValue;
+        String stringValue;
+        LocalDate lDateValue;
+        LocalDateTime lDateTimeValue;
 
-        try {
-            fieldToQueryType = clazz.getField(filter.getField()).getType();
+        Predicate predicate = null;
 
-            if (fieldIsDate(fieldToQueryType)) {
-                fieldToQueryIsOfTypeDate = true;
-            }
+       switch (filter.getType()){
+           case NUMERIC:
+               doublePath= joinObject != null ?
+                       joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                       :
+                       root.get(filter.getField());
+               doubleValue = Double.parseDouble(filter.getValue());
+               switch (filter.getOperator()) {
+                   case LESS_THAN:
+                       predicate = cb.lessThan(doublePath,doubleValue);
+                       break;
+                   case GREATER_THAN:
+                       predicate = cb.greaterThan(doublePath,doubleValue);
+                       break;
 
-        } catch (NoSuchFieldException ex) {
-            fieldToQueryType = null;
-            logger.info("No such field , which isn't supposed to happen at this point");
-        }
+                   case EQUALS:
+                   default:
+                       predicate = cb.equal(doublePath,doubleValue);
 
-        Path<S> path = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
-                :
-                root.get(filter.getField());
+               }
+               break;
+           case STRING:
+               stringPath = joinObject != null ?
+                       joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                       :
+                       root.get(filter.getField());
+               stringValue = filter.getValue();
 
-        switch (filter.getOperator()) {
-            case EQUALS:
-                predicate = cb.equal(path,filter.getValue());
-                break;
-            case LESS_THAN:
-                predicate = cb.lessThan(path,filter.getValue());
-                break;
-            case GREATER_THAN:
-                predicate = cb.greaterThan(path,filter.getValue());
-                break;
-            default:
-                throw new RuntimeException("Wrong operator");
+               switch (filter.getOperator()) {
 
-        }
+                   case LESS_THAN:
+                       predicate = cb.lessThan(stringPath,stringValue);
+                       break;
+
+                   case GREATER_THAN:
+                       predicate = cb.greaterThan(stringPath,stringValue);
+                       break;
+
+                   case EQUALS:
+                   default:
+                       predicate = cb.equal(stringPath,stringValue);
+
+               }
+
+               break;
+           case  LOCAL_DATE:
+               datePath =  joinObject != null ?
+                       joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                       :
+                       root.get(filter.getField());
+               lDateValue = LocalDate.parse(filter.getValue());
+
+               switch (filter.getOperator()) {
+                   case LESS_THAN:
+                       predicate = cb.lessThan(datePath,lDateValue);
+                       break;
+                   case GREATER_THAN:
+                       predicate = cb.greaterThan(datePath,lDateValue);
+                       break;
+
+                   case EQUALS:
+                   default:
+                       predicate = cb.equal(datePath,lDateValue);
+                       break;
+
+               }
+
+               break;
+           case LOCAL_DATE_TIME:
+               ldateTimePath =  joinObject != null ?
+                       joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                       :
+                       root.get(filter.getField());
+               lDateTimeValue = LocalDateTime.parse(filter.getValue());
+
+               switch (filter.getOperator()) {
+                   case LESS_THAN:
+                       predicate = cb.lessThan(ldateTimePath,lDateTimeValue);
+                       break;
+                   case GREATER_THAN:
+                       predicate = cb.greaterThan(ldateTimePath,lDateTimeValue);
+                       break;
+
+                   case EQUALS:
+                   default:
+                       predicate = cb.equal(ldateTimePath,lDateTimeValue);
+               }
+
+               break;
+
+       }
+
+
         return predicate;
     }
 
-    private static boolean fieldIsDate(Class fieldToQueryType) {
-        return fieldToQueryType.equals(LocalDate.class)
-                || fieldToQueryType.equals(LocalDateTime.class)
-                || fieldToQueryType.equals(Date.class);
-    }
+
 
     private static <T> Join<Object, Object> getJoinObject(Root<T> root, Join<Object, Object> joinObject, List<String> nestedFields ) {
         logger.info("Adding necessary join predicates ... ");

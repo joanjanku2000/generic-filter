@@ -1,13 +1,27 @@
 package com.mongo.filter.dto.filter;
 
 
-public class Filter<T extends Comparable> {
+import jdk.vm.ci.meta.Value;
+
+public class Filter {
     private String field;
-    private T value;
+    private String value;
     private InternalOperator operator;
+
+    private ValueType type;
+
+
 
     public Filter() {
        // EMPTY
+    }
+
+    public ValueType getType() {
+        return type;
+    }
+
+    public void setType(ValueType type) {
+        this.type = type;
     }
 
     public String getField() {
@@ -18,11 +32,11 @@ public class Filter<T extends Comparable> {
         this.field = field;
     }
 
-    public T getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(T value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
