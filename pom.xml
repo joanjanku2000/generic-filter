@@ -39,6 +39,7 @@
             <version>2.7.5</version>
         </dependency>
 
+
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
@@ -98,7 +99,7 @@
                 <artifactId>site-maven-plugin</artifactId>
                 <version>0.12</version>
                 <configuration>
-                    <message>Maven artifacts for Generic Filter ${project.version} </message>
+                    <message>Maven artifacts for  Filter ${project.version} </message>
                     <noJekyll>true</noJekyll>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <branch>refs/heads/${branch-name}</branch>

@@ -1,8 +1,6 @@
 package com.mongo.filter.dto.filter;
 
 
-import jdk.vm.ci.meta.Value;
-
 public class Filter {
     private String field;
     private String value;
@@ -11,9 +9,8 @@ public class Filter {
     private ValueType type;
 
 
-
     public Filter() {
-       // EMPTY
+        // EMPTY
     }
 
     public ValueType getType() {
