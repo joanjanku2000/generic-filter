@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -94,91 +95,114 @@ public class RepoUtil {
         LocalDateTime lDateTimeValue;
 
         Predicate predicate = null;
-        try {
-            switch (filter.getType()) {
-                case NUMERIC:
-                    doublePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+        switch (filter.getType()) {
+            case NUMERIC:
+                doublePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+
+                try {
                     doubleValue = Double.parseDouble(filter.getValue());
-                    switch (filter.getOperator()) {
-                        case LESS_THAN:
-                            predicate = cb.lessThan(doublePath, doubleValue);
-                            break;
-                        case GREATER_THAN:
-                            predicate = cb.greaterThan(doublePath, doubleValue);
-                            break;
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Provided value isn't of type Double");
+                }
+                if (!doublePath.getJavaType().equals(Double.class)){
+                    throw new IllegalArgumentException("Field " + filter.getField() + " should be of type Double , found "+ doublePath.getJavaType());
+                }
+                switch (filter.getOperator()) {
+                    case LESS_THAN:
+                        predicate = cb.lessThan(doublePath, doubleValue);
+                        break;
+                    case GREATER_THAN:
+                        predicate = cb.greaterThan(doublePath, doubleValue);
+                        break;
+                    case EQUALS:
+                    default:
+                        predicate = cb.equal(doublePath, doubleValue);
 
-                        case EQUALS:
-                        default:
-                            predicate = cb.equal(doublePath, doubleValue);
+                }
+                break;
+            case STRING:
+                stringPath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+                stringValue = filter.getValue();
 
-                    }
-                    break;
-                case STRING:
-                    stringPath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
-                    stringValue = filter.getValue();
+                if (!stringPath.getJavaType().equals(String.class)) {
+                    throw new IllegalArgumentException("Field " + filter.getField() + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
+                }
 
-                    switch (filter.getOperator()) {
+                switch (filter.getOperator()) {
 
-                        case LESS_THAN:
-                            predicate = cb.lessThan(stringPath, stringValue);
-                            break;
+                    case LESS_THAN:
+                        predicate = cb.lessThan(stringPath, stringValue);
+                        break;
 
-                        case GREATER_THAN:
-                            predicate = cb.greaterThan(stringPath, stringValue);
-                            break;
+                    case GREATER_THAN:
+                        predicate = cb.greaterThan(stringPath, stringValue);
+                        break;
 
-                        case EQUALS:
-                        default:
-                            predicate = cb.equal(stringPath, stringValue);
+                    case EQUALS:
+                    default:
+                        predicate = cb.equal(stringPath, stringValue);
 
-                    }
+                }
+                break;
 
-                    break;
-                case LOCAL_DATE:
-                    datePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+            case LOCAL_DATE:
+                datePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+
+                if (!datePath.getJavaType().equals(LocalDate.class)){
+                    throw new IllegalArgumentException("Field " + filter.getField() + " should be of type LocalDate , found " + datePath.getJavaType());
+                }
+
+                try {
                     lDateValue = LocalDate.parse(filter.getValue());
+                } catch (DateTimeParseException e) {
+                    throw new IllegalArgumentException("Provided value isn't of type LocalDate , it should comply with: YYYY-MM-DD");
+                }
 
-                    switch (filter.getOperator()) {
-                        case LESS_THAN:
-                            predicate = cb.lessThan(datePath, lDateValue);
-                            break;
-                        case GREATER_THAN:
-                            predicate = cb.greaterThan(datePath, lDateValue);
-                            break;
+                switch (filter.getOperator()) {
+                    case LESS_THAN:
+                        predicate = cb.lessThan(datePath, lDateValue);
+                        break;
+                    case GREATER_THAN:
+                        predicate = cb.greaterThan(datePath, lDateValue);
+                        break;
 
-                        case EQUALS:
-                        default:
-                            predicate = cb.equal(datePath, lDateValue);
-                            break;
+                    case EQUALS:
+                    default:
+                        predicate = cb.equal(datePath, lDateValue);
+                        break;
 
-                    }
+                }
+                break;
 
-                    break;
-                case LOCAL_DATE_TIME:
-                    ldateTimePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+            case LOCAL_DATE_TIME:
+                ldateTimePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+
+                if (!ldateTimePath.getJavaType().equals(LocalDateTime.class)){
+                    throw new IllegalArgumentException("Field " + filter.getField() + " should be of type LocalDateTime");
+                }
+
+                try {
                     lDateTimeValue = LocalDateTime.parse(filter.getValue());
+                } catch (DateTimeParseException e) {
+                    throw new IllegalArgumentException("Provided value isn't of type LocalDateTime, it should comply with: YYYY-MM-DD T hh:mm:ss");
+                }
 
-                    switch (filter.getOperator()) {
-                        case LESS_THAN:
-                            predicate = cb.lessThan(ldateTimePath, lDateTimeValue);
-                            break;
-                        case GREATER_THAN:
-                            predicate = cb.greaterThan(ldateTimePath, lDateTimeValue);
-                            break;
+                switch (filter.getOperator()) {
+                    case LESS_THAN:
+                        predicate = cb.lessThan(ldateTimePath, lDateTimeValue);
+                        break;
+                    case GREATER_THAN:
+                        predicate = cb.greaterThan(ldateTimePath, lDateTimeValue);
+                        break;
 
-                        case EQUALS:
-                        default:
-                            predicate = cb.equal(ldateTimePath, lDateTimeValue);
-                    }
+                    case EQUALS:
+                    default:
+                        predicate = cb.equal(ldateTimePath, lDateTimeValue);
+                }
+                break;
 
-                    break;
-
-            }
-            return predicate;
-        } catch (Exception e) {
-            logger.error("Caught exception message {} ", e.getMessage());
-            throw new RuntimeException("Error with one of the datatypes / operators provided ");
         }
+        return predicate;
 
     }
 
