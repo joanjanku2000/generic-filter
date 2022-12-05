@@ -1,4 +1,4 @@
-package com.mongo.filter.dto.filter;
+package com.jpa.filter.dto.filter;
 
 
 import java.util.List;

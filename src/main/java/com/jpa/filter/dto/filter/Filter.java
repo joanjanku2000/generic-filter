@@ -1,4 +1,4 @@
-package com.mongo.filter.dto.filter;
+package com.jpa.filter.dto.filter;
 
 
 public class Filter {

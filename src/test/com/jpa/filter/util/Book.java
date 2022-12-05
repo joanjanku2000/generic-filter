@@ -1,4 +1,4 @@
-package com.mongo.filter.util;
+package com.jpa.filter.util;
 
 public class Book {
     private String name;

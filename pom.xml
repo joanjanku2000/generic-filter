@@ -4,19 +4,16 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <packaging>jar</packaging>
-    <groupId>com.joan</groupId>
+    <groupId>com.generic</groupId>
     <artifactId>filter</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
 
     <name>Generic JPA Filter</name>
     <description>Generic JPA Filter</description>
 
     <properties>
         <java.version>11</java.version>
-        <branch-name>master</branch-name>
-        <repository-name>generic-filter</repository-name>
-        <repository-owner>joanjanku2000</repository-owner>
     </properties>
 
 
