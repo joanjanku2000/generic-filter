@@ -11,7 +11,7 @@ in nested documents ex. book.author.location.name
 ## Requirements
 - Java 11
 - Spring Boot 
-- PreConfigured Spring Data Mongo Configuration
+- PreConfigured Spring Data JPA
 
 ## How to use ?
 
