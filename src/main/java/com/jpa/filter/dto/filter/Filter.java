@@ -1,6 +1,17 @@
 package com.jpa.filter.dto.filter;
 
 
+/**
+ * Filter Object
+ * <ul>
+ *     <li> field - The field to be queried. It must be only the name if the field is in the first level entity,
+ *     or if the field is inside a number of arbitrarily nested objects
+ *     than the required field should be accessed using a dot (.). </li>
+ *     <li> value - The value the field must be queried with </li>
+ *     <li> operator - EQUALS , GREATER_THAN , LESS_THAN </li>
+ *     <li> type - String , Numeric , LocalDate , LocalDateTime </li>
+ * </ul>
+ */
 public class Filter {
     private String field;
     private String value;
