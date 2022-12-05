@@ -3,9 +3,6 @@ package com.mongo.filter.dao;
 import com.mongo.filter.dto.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.CriteriaDefinition;
-
 import javax.persistence.criteria.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -50,28 +47,6 @@ public class RepoUtil {
 
         return false;
     }
-
-    public static CriteriaDefinition extractCriteria(Filter filter) {
-        CriteriaDefinition criteriaDefinition;
-
-        switch (filter.getOperator()) {
-            case EQUALS:
-                criteriaDefinition = Criteria.where(filter.getField()).is(filter.getValue());
-                break;
-            case LESS_THAN:
-                criteriaDefinition = Criteria.where(filter.getField()).lte(filter.getValue());
-                break;
-            case GREATER_THAN:
-                criteriaDefinition = Criteria.where(filter.getField()).gte(filter.getValue());
-                break;
-            default:
-                throw new RuntimeException("Wrong operator");
-
-        }
-
-        return criteriaDefinition;
-    }
-
     public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root, Class clazz) {
         logger.info("Extracting criteria ... ");
 
