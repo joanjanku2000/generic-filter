@@ -1,7 +1,6 @@
 TODO
--> Find a way to dynamically deserialize Filter -> NO NECCESSARY ANYMORE
 -> Dates Comparison -> DONE
--> Error Cases -> STILL TODO
--> Add more validations
+-> Error Cases -> DONE , validation for path / field not existing
+-> Add more validations -> TODO
 -> Infinite Loops (?) --> Still to Verify
 

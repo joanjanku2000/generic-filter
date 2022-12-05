@@ -81,14 +81,6 @@ public class RepoUtil {
     public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root, Class clazz) {
         logger.info("Extracting criteria ... ");
 
-        Integer intValue = null;
-
-        try {
-            intValue = Integer.parseInt((String) filter.getValue());
-        } catch (NumberFormatException numberFormatException){
-            logger.info("Value isn't int value");
-        }
-
         Join<Object,Object> joinObject = null;
         List<String> nestedFields = extractNestedFields(filter);
         logger.info("{} nested fields",nestedFields.size());
@@ -259,6 +251,7 @@ public class RepoUtil {
                                 try {
                                     if (!isHierarchyPresent(tokens, 0, declaredFields)) {
                                         filterMap.remove(filter);
+                                        throw new IllegalArgumentException("This filter does not exist");
                                     }
                                 } catch (ClassNotFoundException e) {
                                     // Do nothing
