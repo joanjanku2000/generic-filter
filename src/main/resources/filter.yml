@@ -1,8 +1,0 @@
-result:
-  type: object
-  path: /filter
-  fields:
-    field:
-    value:
-      type: object
-      path: assigned_to

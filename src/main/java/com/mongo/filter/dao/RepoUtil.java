@@ -11,6 +11,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
+import java.time.chrono.ChronoLocalDateTime;
+import java.time.chrono.Chronology;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,13 +89,13 @@ public class RepoUtil {
 
         Path<Double> doublePath;
         Path<String> stringPath;
-        Path<LocalDate> datePath;
-        Path<LocalDateTime> ldateTimePath;
+        Path<ChronoLocalDate> datePath;
+        Path<ChronoLocalDateTime> ldateTimePath;
 
-        Double doubleValue;
+        double doubleValue;
         String stringValue;
-        LocalDate lDateValue;
-        LocalDateTime lDateTimeValue;
+        ChronoLocalDate lDateValue;
+        ChronoLocalDateTime lDateTimeValue;
 
         Predicate predicate = null;
         switch (filter.getType()) {
@@ -107,18 +110,7 @@ public class RepoUtil {
                 if (!doublePath.getJavaType().equals(Double.class)){
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type Double , found "+ doublePath.getJavaType());
                 }
-                switch (filter.getOperator()) {
-                    case LESS_THAN:
-                        predicate = cb.lessThan(doublePath, doubleValue);
-                        break;
-                    case GREATER_THAN:
-                        predicate = cb.greaterThan(doublePath, doubleValue);
-                        break;
-                    case EQUALS:
-                    default:
-                        predicate = cb.equal(doublePath, doubleValue);
-
-                }
+                predicate = getPredicate(filter, cb, doublePath, doubleValue);
                 break;
             case STRING:
                 stringPath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
@@ -127,22 +119,7 @@ public class RepoUtil {
                 if (!stringPath.getJavaType().equals(String.class)) {
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
                 }
-
-                switch (filter.getOperator()) {
-
-                    case LESS_THAN:
-                        predicate = cb.lessThan(stringPath, stringValue);
-                        break;
-
-                    case GREATER_THAN:
-                        predicate = cb.greaterThan(stringPath, stringValue);
-                        break;
-
-                    case EQUALS:
-                    default:
-                        predicate = cb.equal(stringPath, stringValue);
-
-                }
+                predicate = getPredicate(filter, cb, stringPath, stringValue);
                 break;
 
             case LOCAL_DATE:
@@ -153,25 +130,12 @@ public class RepoUtil {
                 }
 
                 try {
-                    lDateValue = LocalDate.parse(filter.getValue());
+                    Chronology chronology = Chronology.ofLocale(Locale.ENGLISH);
+                    lDateValue = chronology.date(LocalDate.parse(filter.getValue()));
                 } catch (DateTimeParseException e) {
                     throw new IllegalArgumentException("Provided value isn't of type LocalDate , it should comply with: YYYY-MM-DD");
                 }
-
-                switch (filter.getOperator()) {
-                    case LESS_THAN:
-                        predicate = cb.lessThan(datePath, lDateValue);
-                        break;
-                    case GREATER_THAN:
-                        predicate = cb.greaterThan(datePath, lDateValue);
-                        break;
-
-                    case EQUALS:
-                    default:
-                        predicate = cb.equal(datePath, lDateValue);
-                        break;
-
-                }
+                predicate = getPredicate(filter, cb, datePath, lDateValue);
                 break;
 
             case LOCAL_DATE_TIME:
@@ -180,30 +144,36 @@ public class RepoUtil {
                 if (!ldateTimePath.getJavaType().equals(LocalDateTime.class)){
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type LocalDateTime");
                 }
-
                 try {
-                    lDateTimeValue = LocalDateTime.parse(filter.getValue());
+                    Chronology chronology = Chronology.ofLocale(Locale.ENGLISH);
+                    lDateTimeValue = chronology.localDateTime(LocalDateTime.parse(filter.getValue()));
                 } catch (DateTimeParseException e) {
                     throw new IllegalArgumentException("Provided value isn't of type LocalDateTime, it should comply with: YYYY-MM-DD T hh:mm:ss");
                 }
-
-                switch (filter.getOperator()) {
-                    case LESS_THAN:
-                        predicate = cb.lessThan(ldateTimePath, lDateTimeValue);
-                        break;
-                    case GREATER_THAN:
-                        predicate = cb.greaterThan(ldateTimePath, lDateTimeValue);
-                        break;
-
-                    case EQUALS:
-                    default:
-                        predicate = cb.equal(ldateTimePath, lDateTimeValue);
-                }
+                predicate = getPredicate(filter, cb, ldateTimePath, lDateTimeValue);
                 break;
 
         }
         return predicate;
 
+    }
+
+
+
+    private static <T extends Comparable<T>> Predicate getPredicate(Filter filter, CriteriaBuilder cb, Path<T> doublePath, T doubleValue) {
+        Predicate predicate;
+        switch (filter.getOperator()) {
+            case LESS_THAN:
+                predicate = cb.lessThan(doublePath, doubleValue);
+                break;
+            case GREATER_THAN:
+                predicate = cb.greaterThan(doublePath, doubleValue);
+                break;
+            case EQUALS:
+            default:
+                predicate = cb.equal(doublePath, doubleValue);
+        }
+        return predicate;
     }
 
 
