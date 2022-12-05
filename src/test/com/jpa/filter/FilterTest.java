@@ -1,13 +1,13 @@
-package com.mongo.filter;
+package com.jpa.filter;
 
-import com.mongo.filter.util.Book;
+import com.jpa.filter.util.Book;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static com.mongo.filter.dao.RepoUtil.isHierarchyPresent;
+import static com.jpa.filter.dao.RepoUtil.isHierarchyPresent;
 
 class FilterTest {
 

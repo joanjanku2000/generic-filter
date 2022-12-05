@@ -1,10 +1,9 @@
-package com.mongo.filter;
+package com.jpa.filter;
 
-import com.mongo.filter.dto.filter.Filter;
-import com.mongo.filter.dto.filter.InternalOperator;
-import com.mongo.filter.util.Book;
+import com.jpa.filter.dto.filter.Filter;
+import com.jpa.filter.dto.filter.InternalOperator;
+import com.jpa.filter.util.Book;
 import org.hibernate.SessionFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,7 +17,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import static com.mongo.filter.dao.RepoUtil.extractCriteria;
 import static org.mockito.Mockito.when;
 
 

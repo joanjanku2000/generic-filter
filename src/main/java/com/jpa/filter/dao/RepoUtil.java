@@ -1,6 +1,6 @@
-package com.mongo.filter.dao;
+package com.jpa.filter.dao;
 
-import com.mongo.filter.dto.filter.Filter;
+import com.jpa.filter.dto.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.persistence.criteria.*;
@@ -47,6 +47,23 @@ public class RepoUtil {
 
         return false;
     }
+
+    /**
+     * Method used to extract the Predicate from a single Filter , including the validations
+     * What it does ?
+     * <ol>
+     *     <li>Checks if the path even exists. Recursively.</li>
+     *     <li>Validates if the provided data type corresponds with the field's datatype</li>
+     *     <li>Extracts the predicate for the queried request</li>
+     * </ol>
+     *
+     *  At the moment only 4 data types are supported: Numeric i.e Double , String , LocalDate , LocalDateTime
+     * @param filter {@link Filter}
+     * @param cb {@link CriteriaBuilder}
+     * @param root {@link Root}
+     * @param clazz {@link Class}
+     * @return {@link Predicate}
+     */
     public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root, Class clazz) {
         logger.info("Extracting criteria ... ");
 
