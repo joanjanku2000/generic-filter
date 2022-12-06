@@ -1,7 +1,7 @@
 package com.jpa.filter.dao;
 
-import com.jpa.filter.dto.filter.Filter;
-import com.jpa.filter.dto.filter.FilterWrap;
+import com.jpa.filter.dto.Filter;
+import com.jpa.filter.dto.FilterWrap;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -23,7 +23,7 @@ public class FilterRepoJpaImpl implements FilterRepo {
     private EntityManager entityManager;
 
     @Override
-    public <DOCUMENT> List<DOCUMENT> filter(FilterWrap filterWrap, Class<DOCUMENT> collectionClass) {
+    public <ENTITY> List<ENTITY> filter(FilterWrap filterWrap, Class<ENTITY> collectionClass) {
         Collection<Filter> filters = filterWrap.getFilters();
 
         List<Field> declaredClassFields = Arrays
@@ -33,10 +33,10 @@ public class FilterRepoJpaImpl implements FilterRepo {
         filters = RepoUtil.extractCorrectFilters(filters, declaredClassFields);
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<DOCUMENT> criteriaQuery = criteriaBuilder.createQuery(collectionClass);
-        Root<DOCUMENT> root = criteriaQuery.from(collectionClass);
+        CriteriaQuery<ENTITY> criteriaQuery = criteriaBuilder.createQuery(collectionClass);
+        Root<ENTITY> root = criteriaQuery.from(collectionClass);
 
-        List<Predicate> predicates = predicates(filters, criteriaBuilder, root,collectionClass);
+        List<Predicate> predicates = predicates(filters, criteriaBuilder, root);
 
         criteriaQuery.select(root).where(predicates.toArray(new Predicate[0]));
 
@@ -48,17 +48,16 @@ public class FilterRepoJpaImpl implements FilterRepo {
      * @param filters {@link Collection<Filter>}
      * @param criteriaBuilder {@link CriteriaBuilder}
      * @param root {@link Root}
-     * @param clazz {@link Class}
      * @return {@link List<Predicate>}
-     * @param <DOCUMENT>
+     * @param <ENTITY>
      */
-    private <DOCUMENT> List<Predicate> predicates(Collection<Filter> filters
+    private <ENTITY> List<Predicate> predicates(Collection<Filter> filters
                                                 , CriteriaBuilder criteriaBuilder
-                                                , Root<DOCUMENT> root
-                                                ,Class<DOCUMENT> clazz) {
+                                                , Root<ENTITY> root
+                                               ) {
         return filters
                 .stream()
-                .map(filter -> RepoUtil.extractCriteria(filter, criteriaBuilder, root,clazz))
+                .map(filter -> RepoUtil.extractCriteria(filter, criteriaBuilder, root))
                 .collect(Collectors.toList());
     }
 }

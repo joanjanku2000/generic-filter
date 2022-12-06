@@ -1,7 +1,7 @@
 package com.jpa.filter;
 
-import com.jpa.filter.dto.filter.Filter;
-import com.jpa.filter.dto.filter.InternalOperator;
+import com.jpa.filter.dto.Filter;
+import com.jpa.filter.dto.InternalOperator;
 import com.jpa.filter.util.Book;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.Test;

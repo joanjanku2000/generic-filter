@@ -1,4 +1,4 @@
-package com.jpa.filter.dto.filter;
+package com.jpa.filter.dto;
 
 
 /**

@@ -5,8 +5,8 @@ The aim of this repository is to make the life of developers using filters easie
 By integrating this JAR into their project, you have an off-the-shelf filter
 which you can plug in your source code and use it immediately.
 It relies heaviliy in Java Reflection API to recursively search for
-fields in @Document annotated classes. By recursively, it means even fields
-in nested documents ex. book.author.location.name
+fields in @ENTITY annotated classes. By recursively, it means even fields
+in nested ENTITYs ex. book.author.location.name
 
 ## Requirements
 - Java 11
@@ -21,7 +21,7 @@ the Jar and add it manually in your project or run the code and install it
 in your local maven.
 The FilterRepo interface provides a filter method requiring a 
 FilterWrap object and the Class object where the filter will search.
-This can be wrapped in a service where the Class of the Document can be provided or can be 
+This can be wrapped in a service where the Class of the ENTITY can be provided or can be 
 used directly in the controller.
 The FilterWrap class contains a List of Filter objects which represent
 the field to be filter 

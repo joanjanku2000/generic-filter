@@ -1,6 +1,6 @@
 package com.jpa.filter.dao;
 
-import com.jpa.filter.dto.filter.FilterWrap;
+import com.jpa.filter.dto.FilterWrap;
 
 import java.util.List;
 
@@ -13,11 +13,11 @@ public interface FilterRepo {
     /**
      * Filter method to be used by the client
      *
-     * @param filterWrap {@link com.jpa.filter.dto.filter.FilterWrap}
+     * @param filterWrap {@link FilterWrap}
      * @param collectionClass {@link Class}
-     * @return {@link List<DOCUMENT>} -- List of Results from filtering
+     * @return {@link List<ENTITY>} -- List of Results from filtering
      * <br/>
      * throws {@link IllegalArgumentException}
      */
-    <DOCUMENT> List<DOCUMENT> filter(FilterWrap filterWrap, Class<DOCUMENT> collectionClass);
+    <ENTITY> List<ENTITY> filter(FilterWrap filterWrap, Class<ENTITY> collectionClass);
 }
