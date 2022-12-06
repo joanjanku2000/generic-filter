@@ -96,6 +96,7 @@ public class RepoUtil {
         switch (filter.getType()) {
             case NUMERIC:
                 doublePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+
                 doubleValue =  execute(() ->
                                 Double.parseDouble(filter.getValue())
                                 , ExceptionMessages.VALUE_IS_NOT_DOUBLE);
@@ -109,6 +110,7 @@ public class RepoUtil {
             case STRING:
                 stringPath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
                 stringValue = filter.getValue();
+
                 if (!stringPath.getJavaType().equals(String.class)) {
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
                 }
@@ -116,28 +118,38 @@ public class RepoUtil {
                 predicate = getPredicate(filter, cb, stringPath, stringValue);
                 break;
             case LOCAL_DATE:
+
                 datePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+
                 if (!datePath.getJavaType().equals(LocalDate.class)) {
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type LocalDate , found " + datePath.getJavaType());
                 }
 
-                lDateValue.set( execute(() -> {
-                    Chronology chronology = Chronology.ofLocale(Locale.ENGLISH);
-                    return chronology.date(LocalDate.parse(filter.getValue()));
+                lDateValue.set(
+                        execute(() -> {
+                            Chronology chronology = Chronology.ofLocale(Locale.ENGLISH);
+                            return chronology.date(LocalDate.parse(filter.getValue()));
+                            }
+                            , ExceptionMessages.VALUE_IS_NOT_LOCAL_DATE)
+                );
 
-                }, ExceptionMessages.VALUE_IS_NOT_LOCAL_DATE));
                 predicate = getPredicate(filter, cb, datePath, lDateValue.get());
                 break;
             case LOCAL_DATE_TIME:
                 ldateTimePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+
                 if (!ldateTimePath.getJavaType().equals(LocalDateTime.class)) {
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type LocalDateTime");
                 }
 
-                lDateTimeValue.set(execute(() -> {
-                    Chronology chronology = Chronology.ofLocale(Locale.ENGLISH);
-                    return chronology.localDateTime(LocalDateTime.parse(filter.getValue()));
-                }, ExceptionMessages.VALUE_IS_NOT_LOCAL_DATE_TIME));
+                lDateTimeValue.set(
+                        execute(() -> {
+                            Chronology chronology = Chronology.ofLocale(Locale.ENGLISH);
+                            return chronology.localDateTime(LocalDateTime.parse(filter.getValue()));
+                            }
+                            , ExceptionMessages.VALUE_IS_NOT_LOCAL_DATE_TIME)
+                );
+
                 predicate = getPredicate(filter, cb, ldateTimePath,  lDateTimeValue.get());
         }
 
