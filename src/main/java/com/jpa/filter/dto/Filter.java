@@ -16,7 +16,6 @@ public class Filter {
     private String field;
     private String value;
     private InternalOperator operator;
-
     private ValueType type;
 
 
