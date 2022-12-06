@@ -166,7 +166,10 @@ public class RepoUtil {
     }
 
 
-    private static <T extends Comparable<T>> Predicate getPredicate(Filter filter, CriteriaBuilder cb, Path<T> doublePath, T doubleValue) {
+    private static <T extends Comparable<T>> Predicate getPredicate(Filter filter,
+                                                                    CriteriaBuilder cb,
+                                                                    Path<T> doublePath,
+                                                                    T doubleValue) {
         Predicate predicate;
         switch (filter.getOperator()) {
             case LESS_THAN:
@@ -183,7 +186,10 @@ public class RepoUtil {
     }
 
 
-    private static <T> Join<Object, Object> getJoinObject(Root<T> root, Join<Object, Object> joinObject, List<String> nestedFields) {
+    private static <T> Join<Object, Object> getJoinObject(Root<T> root,
+                                                          Join<Object, Object> joinObject,
+                                                          List<String> nestedFields) {
+
         logger.info("Adding necessary join predicates ... ");
         int iteration = 1;
         Join<Object, Object> previous = null;
@@ -210,7 +216,9 @@ public class RepoUtil {
         return filter.getField().contains(".");
     }
 
-    public static Collection<Filter> extractCorrectFilters(Collection<Filter> filters, List<Field> declaredFields) {
+    public static Collection<Filter> extractCorrectFilters(Collection<Filter> filters,
+                                                           List<Field> declaredFields) {
+
         logger.info("Filters size {} ", filters.size());
         Map<String, Filter> filterMap = new HashMap<>();
         filters.forEach(filter -> filterMap.put(filter.getField(), filter));
