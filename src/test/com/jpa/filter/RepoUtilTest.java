@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import static com.jpa.filter.dao.RepoUtil.*;
 
-class RepoUtil {
+class RepoUtilTest {
 
     @Test
     void test_isHierarchyPresent_Pass() throws ClassNotFoundException {
