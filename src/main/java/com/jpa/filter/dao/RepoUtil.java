@@ -33,7 +33,7 @@ public class RepoUtil {
         for (Field field : fields) {
             String genericTypeClassName = null;
 
-            if (field.getGenericType().getTypeName().contains("java.util.List")) {
+            if (field.getGenericType().getTypeName().contains("java.util.List") || field.getGenericType().getTypeName().contains("java.util.Set")) {
                 genericTypeClassName = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0].getTypeName();
             }
 
