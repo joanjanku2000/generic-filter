@@ -14,6 +14,9 @@ import java.util.Map;
 
 public class Util {
 
+    private Util(){
+        // empty constructor to avoid class instantiation
+    }
     public static Path<String> mockPath(){
         return new Path<String>() {
             @Override

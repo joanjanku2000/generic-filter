@@ -6,7 +6,7 @@ import com.jpa.filter.dto.ValueType;
 
 public class FilterBuilder implements Builder<Filter> {
 
-    private Filter filter;
+    private final Filter filter;
 
     public FilterBuilder(String field){
         this.filter = new Filter();
