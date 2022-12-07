@@ -67,7 +67,9 @@ public class RepoUtil {
      * @param root   {@link Root}
      * @return {@link Predicate}
      */
-    public static <T> Predicate extractCriteria(Filter filter, CriteriaBuilder cb, Root<T> root) {
+    public static <T> Predicate extractCriteria(Filter filter,
+                                                CriteriaBuilder cb,
+                                                Root<T> root) {
         logger.info("Extracting criteria ... ");
 
         Join<Object, Object> joinObject = null;
@@ -102,16 +104,19 @@ public class RepoUtil {
                                 , ExceptionMessages.VALUE_IS_NOT_DOUBLE);
 
                 if (!doublePath.getJavaType().equals(Double.class)) {
+                    logger.error("Field " + filter.getField() + " should be of type Double , found " + doublePath.getJavaType());
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type Double , found " + doublePath.getJavaType());
                 }
 
                 predicate = getPredicate(filter, cb, doublePath, doubleValue);
                 break;
             case STRING:
+                logger.info("Filter field {} ",filter.getField());
                 stringPath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
                 stringValue = filter.getValue();
 
                 if (!stringPath.getJavaType().equals(String.class)) {
+                    logger.error("Field " + filter.getField() + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
                 }
 
@@ -161,6 +166,7 @@ public class RepoUtil {
         try {
             return (T) executable.execute();
         } catch (Exception var3) {
+            logger.error(message);
             throw new IllegalArgumentException(message);
         }
     }
@@ -207,11 +213,11 @@ public class RepoUtil {
         return joinObject;
     }
 
-    private static List<String> extractNestedFields(Filter filter) {
+    public static List<String> extractNestedFields(Filter filter) {
         return Arrays.asList(filter.getField().split("[.]"));
     }
 
-    private static boolean filterIsNested(Filter filter) {
+    public static boolean filterIsNested(Filter filter) {
         logger.info("Filter contains . {} ", filter.getField().contains("."));
         return filter.getField().contains(".");
     }

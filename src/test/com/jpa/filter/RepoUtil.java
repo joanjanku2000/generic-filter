@@ -14,8 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.jpa.filter.dao.RepoUtil.extractCorrectFilters;
-import static com.jpa.filter.dao.RepoUtil.isHierarchyPresent;
+import static com.jpa.filter.dao.RepoUtil.*;
 
 class RepoUtil {
 
@@ -33,7 +32,6 @@ class RepoUtil {
         );
 
     }
-
     @Test
     void test_isHierarchyPresent_Pass_1() throws ClassNotFoundException {
 
@@ -126,5 +124,35 @@ class RepoUtil {
 
         Assertions.assertEquals(filterCollectionResult.size() , 0);
 
+    }
+
+    @Test
+    void test_filterIsNested(){
+        Filter filter = FilterBuilder
+                .createFilter("author.name")
+                .value("test_name")
+                .operator(InternalOperator.EQUALS)
+                .type(ValueType.NUMERIC)
+                .build();
+
+        Assertions.assertTrue(filterIsNested(filter));
+    }
+    
+    @Test
+    void test_extractNestedFields() {
+        Filter filter = FilterBuilder
+                .createFilter("author.name")
+                .value("test_name")
+                .operator(InternalOperator.EQUALS)
+                .type(ValueType.NUMERIC)
+                .build();
+        
+        List<String> stringsResult = Arrays.asList("author" , "name");
+        
+        Assertions.assertTrue(listOfStringsIsEqual(stringsResult,extractNestedFields(filter)));
+    }
+    
+    private boolean listOfStringsIsEqual(List<String> list , List<String> list2){
+       return !list.retainAll(list2);
     }
 }
