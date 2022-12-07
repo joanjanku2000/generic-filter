@@ -207,11 +207,11 @@ public class RepoUtil {
         return joinObject;
     }
 
-    private static List<String> extractNestedFields(Filter filter) {
+    public static List<String> extractNestedFields(Filter filter) {
         return Arrays.asList(filter.getField().split("[.]"));
     }
 
-    private static boolean filterIsNested(Filter filter) {
+    public static boolean filterIsNested(Filter filter) {
         logger.info("Filter contains . {} ", filter.getField().contains("."));
         return filter.getField().contains(".");
     }
