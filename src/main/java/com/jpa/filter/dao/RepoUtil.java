@@ -97,7 +97,9 @@ public class RepoUtil {
         Predicate predicate = null;
         switch (filter.getType()) {
             case NUMERIC:
-                doublePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+                doublePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                        :
+                        root.get(filter.getField());
 
                 doubleValue =  execute(() ->
                                 Double.parseDouble(filter.getValue())
@@ -112,7 +114,9 @@ public class RepoUtil {
                 break;
             case STRING:
                 logger.info("Filter field {} ",filter.getField());
-                stringPath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+                stringPath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                        :
+                        root.get(filter.getField());
                 stringValue = filter.getValue();
 
                 if (!stringPath.getJavaType().equals(String.class)) {
@@ -124,7 +128,9 @@ public class RepoUtil {
                 break;
             case LOCAL_DATE:
 
-                datePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+                datePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                        :
+                        root.get(filter.getField());
 
                 if (!datePath.getJavaType().equals(LocalDate.class)) {
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type LocalDate , found " + datePath.getJavaType());
@@ -141,7 +147,10 @@ public class RepoUtil {
                 predicate = getPredicate(filter, cb, datePath, lDateValue.get());
                 break;
             case LOCAL_DATE_TIME:
-                ldateTimePath = joinObject != null ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1]) : root.get(filter.getField());
+                ldateTimePath = joinObject != null
+                        ? joinObject.get(filter.getField().split("[.]")[nestedFields.size() - 1])
+                        :
+                        root.get(filter.getField());
 
                 if (!ldateTimePath.getJavaType().equals(LocalDateTime.class)) {
                     throw new IllegalArgumentException("Field " + filter.getField() + " should be of type LocalDateTime");
