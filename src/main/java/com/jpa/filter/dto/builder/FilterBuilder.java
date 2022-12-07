@@ -8,7 +8,11 @@ public class FilterBuilder implements Builder<Filter> {
 
     private final Filter filter;
 
-    public FilterBuilder(String field){
+    public static FilterBuilder createFilter(String field) {
+        return new FilterBuilder(field);
+    }
+
+    private FilterBuilder(String field){
         this.filter = new Filter();
         filter.setField(field);
     }
@@ -32,9 +36,7 @@ public class FilterBuilder implements Builder<Filter> {
     }
 
 
-    public static FilterBuilder createFilter(String field) {
-        return new FilterBuilder(field);
-    }
+
 
     @Override
     public Filter build() {

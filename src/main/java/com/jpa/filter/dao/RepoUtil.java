@@ -29,6 +29,7 @@ public class RepoUtil {
         if (i >= tokens.length) {
             return true;
         }
+
         for (Field field : fields) {
             String genericTypeClassName = null;
 
