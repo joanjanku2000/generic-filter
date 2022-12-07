@@ -47,7 +47,7 @@ public class RepoUtilCriteriaMethodsTest {
     @Mock
     private Root root = Mockito.mock(Root.class);
 
-    private Path<String> path = mockPath();;
+    private final Path<String> path = mockPath();
 
 
     @Test
