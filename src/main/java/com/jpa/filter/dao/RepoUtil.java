@@ -134,7 +134,8 @@ public class RepoUtil {
                         root.get(filter.getField());
 
                 if (!datePath.getJavaType().equals(LocalDate.class)) {
-                    throw new IllegalArgumentException("Field " + filter.getField() + " should be of type LocalDate , found " + datePath.getJavaType());
+                    throw new IllegalArgumentException("Field " + filter.getField()
+                            + " should be of type LocalDate , found " + datePath.getJavaType());
                 }
 
                 lDateValue.set(
