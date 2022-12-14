@@ -35,9 +35,6 @@ public class FilterBuilder implements Builder<Filter> {
         return this;
     }
 
-
-
-
     @Override
     public Filter build() {
         return this.filter;

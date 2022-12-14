@@ -33,7 +33,7 @@ public class RepoUtil {
         for (Field field : fields) {
             String genericTypeClassName = null;
 
-            if (field.getGenericType().getTypeName().contains("java.util.List")) {
+            if (field.getGenericType().getTypeName().contains("java.util.List") || field.getGenericType().getTypeName().contains("java.util.Set")) {
                 genericTypeClassName = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0].getTypeName();
             }
 
@@ -67,6 +67,8 @@ public class RepoUtil {
      * @param cb     {@link CriteriaBuilder}
      * @param root   {@link Root}
      * @return {@link Predicate}
+     * <br>
+     * throws {@link IllegalArgumentException}
      */
     public static <T> Predicate extractCriteria(Filter filter,
                                                 CriteriaBuilder cb,
@@ -122,7 +124,8 @@ public class RepoUtil {
 
                 if (!stringPath.getJavaType().equals(String.class)) {
                     logger.error("Field " + filter.getField() + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
-                    throw new IllegalArgumentException("Field " + filter.getField() + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
+                    throw new IllegalArgumentException("Field " + filter.getField()
+                            + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
                 }
 
                 predicate = getPredicate(filter, cb, stringPath, stringValue);
@@ -134,7 +137,8 @@ public class RepoUtil {
                         root.get(filter.getField());
 
                 if (!datePath.getJavaType().equals(LocalDate.class)) {
-                    throw new IllegalArgumentException("Field " + filter.getField() + " should be of type LocalDate , found " + datePath.getJavaType());
+                    throw new IllegalArgumentException("Field " + filter.getField()
+                            + " should be of type LocalDate , found " + datePath.getJavaType());
                 }
 
                 lDateValue.set(
