@@ -67,6 +67,8 @@ public class RepoUtil {
      * @param cb     {@link CriteriaBuilder}
      * @param root   {@link Root}
      * @return {@link Predicate}
+     * <br>
+     * throws {@link IllegalArgumentException}
      */
     public static <T> Predicate extractCriteria(Filter filter,
                                                 CriteriaBuilder cb,
@@ -122,7 +124,8 @@ public class RepoUtil {
 
                 if (!stringPath.getJavaType().equals(String.class)) {
                     logger.error("Field " + filter.getField() + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
-                    throw new IllegalArgumentException("Field " + filter.getField() + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
+                    throw new IllegalArgumentException("Field " + filter.getField()
+                            + " should be of type String , found " + stringPath.getJavaType().getSimpleName());
                 }
 
                 predicate = getPredicate(filter, cb, stringPath, stringValue);
