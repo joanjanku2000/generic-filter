@@ -59,6 +59,22 @@ protected final FilterRepo filterRepo;
  }
 
 ```
+
+## Postman example
+```
+{
+"filters": [
+{
+"field":"name" ,
+"value":"Algebra",
+"type": 0  ,
+"operator":0
+}
+] ,
+"collection": "test"
+}
+```
+
 (c) Joan Janku 2022
 
 
