@@ -190,6 +190,10 @@ public class RepoUtil {
                                                                     CriteriaBuilder cb,
                                                                     Path<T> doublePath,
                                                                     T doubleValue) {
+        if (filter.getOperator() == null ){
+            throw new RuntimeException("Operator cannot be null");
+        }
+
         Predicate predicate;
         switch (filter.getOperator()) {
             case LESS_THAN:
