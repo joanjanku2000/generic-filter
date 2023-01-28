@@ -1,6 +1,6 @@
 # Generic Multi-Purpose Filter
 
-## Aim
+## Aim of the project
 The aim of this repository is to make the life of developers using filters easier.
 By integrating this JAR into their project, you have an off-the-shelf filter
 which you can plug in your source code and use it immediately.
